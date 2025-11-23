@@ -1,4 +1,4 @@
-package Algorithms;
+package EstructurasDeDatos;
 import java.util.Comparator;
 
 //Nodo con compatarator referencia:

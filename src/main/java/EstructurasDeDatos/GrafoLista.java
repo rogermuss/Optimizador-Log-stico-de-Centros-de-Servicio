@@ -1,16 +1,14 @@
 package EstructurasDeDatos;
 
-import Algorithms.NodeComparator;
-
 import java.util.ArrayList;
 import java.util.List;
-
-public class Grafo {
+//https://www.programiz.com/dsa/graph-adjacency-list
+public class GrafoLista {
     private int Vertices; //cantidad de vertices del grafo
     private List<List<NodeComparator>> listaAdyacencia;
 
-    //Inicializa un grafo de N vertices, contendra los nodos a los que esta conectado junto con los costos
-    public Grafo(int vertices) {
+    //Inicializa un grafo de N vertices, contendrá los nodos a los que está conectado junto con los costos
+    public GrafoLista(int vertices) {
         this.Vertices = vertices;
         this.listaAdyacencia = new ArrayList<List<NodeComparator>>();
         for (int i = 0; i < this.Vertices; i++) {
