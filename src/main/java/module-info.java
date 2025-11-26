@@ -11,6 +11,6 @@ module org.example.optimizadorlogistico_de_centros_de_servicio {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 
-    //opens org.example.optimizadorlogistico_de_centros_de_servicio to javafx.fxml;
-    //exports org.example.optimizadorlogistico_de_centros_de_servicio;
+    opens Interfaz to javafx.fxml;
+    exports Interfaz;
 }
