@@ -58,8 +58,8 @@ public class RedLogisticaController implements Initializable {
         nombreAIndice = new HashMap<>();
         indiceANombre = new HashMap<>();
 
-        selectorAlgoritmo.setDisable(true);
-        botonEjecutarAlgoritmo.setDisable(true);
+//        selectorAlgoritmo.setDisable(true);
+//        botonEjecutarAlgoritmo.setDisable(true);
         panelParametros.setVisible(false);
 
         selectorAlgoritmo.getItems().addAll(
@@ -68,8 +68,20 @@ public class RedLogisticaController implements Initializable {
         );
 
         selectorAlgoritmo.setOnAction(e -> cambiarAlgoritmo());
-        selectorOrigen.setOnAction(e -> verificarParametrosDijkstra());
-        selectorDestino.setOnAction(e -> verificarParametrosDijkstra());
+        selectorOrigen.setOnAction(e -> {
+            verificarParametrosDijkstra();
+            if (selectorAlgoritmo.getValue() != null &&
+                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
+                ejecutarDijkstra();
+            }
+        });
+        selectorDestino.setOnAction(e -> {
+            if (selectorAlgoritmo.getValue() != null &&
+                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
+                ejecutarDijkstra();
+            }
+        });
+
         botonCargar.setOnAction(e -> abrirExplorador());
         botonEjecutarAlgoritmo.setOnAction(e -> ejecutarAlgoritmo());
         botonReturn.setOnAction(e -> regresarAlMenu());
@@ -79,7 +91,7 @@ public class RedLogisticaController implements Initializable {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado != null && algoritmoSeleccionado.contains("Dijkstra")) {
             Integer origen = selectorOrigen.getValue();
-            botonEjecutarAlgoritmo.setDisable(origen == null);
+           // botonEjecutarAlgoritmo.setDisable(origen == null);
         }
     }
 
@@ -261,15 +273,39 @@ public class RedLogisticaController implements Initializable {
     }
 
     private void cambiarAlgoritmo() {
-        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
 
+        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado == null) {
             return;
         }
 
+        // Mostrar panel siempre
         panelParametros.setVisible(true);
 
+        // Limpiar selección previa para evitar errores en la primera ejecución
+        selectorOrigen.getSelectionModel().clearSelection();
+        selectorDestino.getSelectionModel().clearSelection();
+        selectorOrigen.setValue(null);
+        selectorDestino.setValue(null);
+
+        // Activar listeners que ejecutan Dijkstra al cambiar origen/destino
+        selectorOrigen.setOnAction(e -> {
+            if (selectorAlgoritmo.getValue() != null &&
+                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
+                ejecutarDijkstra();
+            }
+        });
+
+        selectorDestino.setOnAction(e -> {
+            if (selectorAlgoritmo.getValue() != null &&
+                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
+                ejecutarDijkstra();
+            }
+        });
+
+        // ░░░░░░▓▓▓  DIJKSTRA  ▓▓▓░░░░░░
         if (algoritmoSeleccionado.contains("Dijkstra")) {
+
             labelOrigen.setVisible(true);
             selectorOrigen.setVisible(true);
             labelDestino.setVisible(true);
@@ -278,33 +314,38 @@ public class RedLogisticaController implements Initializable {
             labelOrigen.setText("Centro de Distribución Origen:");
             labelDestino.setText("Centro de Distribución Destino (Opcional):");
 
-            areaDetalles.setText("ALGORITMO DE DIJKSTRA\n" +
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
-                    "Este algoritmo calcula la ruta más corta desde un Centro de Distribución " +
-                    "origen hacia TODOS los demás centros de la red.\n\n" +
-                    "USO:\n" +
-                    "- Seleccione el Centro de Distribución de origen\n" +
-                    "- Opcionalmente, seleccione un destino específico para ver la ruta detallada\n" +
-                    "- El resultado mostrará las distancias mínimas a todos los centros");
+            areaDetalles.setText("""
+                ALGORITMO DE DIJKSTRA
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-            Integer origen = selectorOrigen.getValue();
-            botonEjecutarAlgoritmo.setDisable(origen == null);
+                Calcula la ruta más corta desde un centro origen
+                hacia todos los demás centros conectados.
+                
+                Parámetros:
+                - Origen (obligatorio)
+                - Destino (opcional)
+                """);
+
+            // Siempre habilitado
+            botonEjecutarAlgoritmo.setDisable(false);
 
         } else {
+
+            // ░░░░░░▓▓▓  FLOYD-WARSHALL  ▓▓▓░░░░░░
             labelOrigen.setVisible(false);
             selectorOrigen.setVisible(false);
             labelDestino.setVisible(false);
             selectorDestino.setVisible(false);
 
-            areaDetalles.setText("ALGORITMO DE FLOYD-WARSHALL\n" +
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
-                    "Este algoritmo calcula las distancias más cortas entre TODOS los pares " +
-                    "de Centros de Distribución en la red.\n\n" +
-                    "USO:\n" +
-                    "- No requiere parámetros adicionales\n" +
-                    "- Genera una matriz completa de conectividad\n" +
-                    "- Útil para cotización rápida de envíos entre cualquier par de centros\n" +
-                    "- Permite análisis de conectividad total de la red");
+            areaDetalles.setText("""
+                ALGORITMO DE FLOYD-WARSHALL
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                Calcula las rutas más cortas entre todos los pares
+                de centros en la red.
+                
+                No requiere parámetros.
+                """);
 
             botonEjecutarAlgoritmo.setDisable(false);
         }
@@ -345,6 +386,7 @@ public class RedLogisticaController implements Initializable {
 
     private void mostrarResultadosDijkstra(ResultadoDijkstra resultado, int origen) {
         tablaResultados.getColumns().clear();
+        tablaResultados.getItems().clear();
 
         TableColumn<String[], String> colDestino = new TableColumn<>("Centro Destino");
         colDestino.setCellValueFactory(data ->
