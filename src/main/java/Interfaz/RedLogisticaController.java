@@ -58,12 +58,14 @@ public class RedLogisticaController implements Initializable {
         nombreAIndice = new HashMap<>();
         indiceANombre = new HashMap<>();
 
-//        selectorAlgoritmo.setDisable(true);
-//        botonEjecutarAlgoritmo.setDisable(true);
+        //        selectorAlgoritmo.setDisable(true);
+        //        botonEjecutarAlgoritmo.setDisable(true);
         panelParametros.setVisible(false);
 
+        // *** NUEVO: agregamos opción para Dijkstra recursivo
         selectorAlgoritmo.getItems().addAll(
-                "Dijkstra - Ruta Más Corta (Un Origen)",
+                "Dijkstra Iterativo - Ruta Más Corta (Un Origen)",
+                "Dijkstra Recursivo - Ruta Más Corta (Un Origen)",
                 "Floyd-Warshall - Análisis de Conectividad Total"
         );
 
@@ -91,7 +93,7 @@ public class RedLogisticaController implements Initializable {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado != null && algoritmoSeleccionado.contains("Dijkstra")) {
             Integer origen = selectorOrigen.getValue();
-           // botonEjecutarAlgoritmo.setDisable(origen == null);
+            // botonEjecutarAlgoritmo.setDisable(origen == null);
         }
     }
 
@@ -273,7 +275,6 @@ public class RedLogisticaController implements Initializable {
     }
 
     private void cambiarAlgoritmo() {
-
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado == null) {
             return;
@@ -291,7 +292,6 @@ public class RedLogisticaController implements Initializable {
         // Limpia el área de detalles
         areaDetalles.clear();
 
-        // ░░░░░░▓▓▓  DIJKSTRA  ▓▓▓░░░░░░
         if (algoritmoSeleccionado.contains("Dijkstra")) {
 
             labelOrigen.setVisible(true);
@@ -302,24 +302,27 @@ public class RedLogisticaController implements Initializable {
             labelOrigen.setText("Centro de Distribución Origen:");
             labelDestino.setText("Centro de Distribución Destino (Opcional):");
 
-            areaDetalles.setText("""
-                ALGORITMO DE DIJKSTRA
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // *** NUEVO: texto cambia según iterativo/recursivo y avisa de la comparación
+            StringBuilder desc = new StringBuilder();
+            if (algoritmoSeleccionado.toLowerCase().contains("recursivo")) {
+                desc.append("ALGORITMO DE DIJKSTRA (VERSIÓN RECURSIVA)\n");
+            } else {
+                desc.append("ALGORITMO DE DIJKSTRA (VERSIÓN ITERATIVA)\n");
+            }
+            desc.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+            desc.append("Calcula la ruta más corta desde un centro origen\n");
+            desc.append("hacia todos los demás centros conectados.\n\n");
+            desc.append("Parámetros:\n");
+            desc.append("• Origen (obligatorio)\n");
+            desc.append("• Destino (opcional)\n\n");
+            desc.append("Al ejecutar, también se calculará la otra versión de Dijkstra\n");
+            desc.append("(iterativa/recursiva) para comparar tiempos de ejecución.");
+            areaDetalles.setText(desc.toString());
 
-                Calcula la ruta más corta desde un centro origen
-                hacia todos los demás centros conectados.
-
-                Parámetros:
-                - Origen (obligatorio)
-                - Destino (opcional)
-                """);
-
-            // Habilitar botón ejecutar
             botonEjecutarAlgoritmo.setDisable(false);
 
-        } else {
+        } else if (algoritmoSeleccionado.contains("Floyd")) {
 
-            // ░░░░░░▓▓▓  FLOYD-WARSHALL  ▓▓▓░░░░░░
             labelOrigen.setVisible(false);
             selectorOrigen.setVisible(false);
             labelDestino.setVisible(false);
@@ -339,7 +342,6 @@ public class RedLogisticaController implements Initializable {
         }
     }
 
-
     private void ejecutarAlgoritmo() {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
 
@@ -350,11 +352,12 @@ public class RedLogisticaController implements Initializable {
 
         if (algoritmoSeleccionado.contains("Dijkstra")) {
             ejecutarDijkstra();
-        } else {
+        } else if (algoritmoSeleccionado.contains("Floyd")) {
             ejecutarFloydWarshall();
         }
     }
 
+    // *** NUEVO: ejecuta ambas versiones de Dijkstra y compara tiempos
     private void ejecutarDijkstra() {
         Integer origen = selectorOrigen.getValue();
 
@@ -363,17 +366,48 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
+        if (grafoLista == null) {
+            mostrarAlerta("Error", "No se ha construido el grafo. Cargue primero un archivo CSV.");
+            return;
+        }
+
+        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
+        boolean usarRecursivo = algoritmoSeleccionado != null &&
+                algoritmoSeleccionado.toLowerCase().contains("recursivo");
+
         System.out.println("Ejecutando Dijkstra desde nodo: " + origen + " (" + indiceANombre.get(origen) + ")");
+        System.out.println("Implementación seleccionada para la tabla: " +
+                (usarRecursivo ? "recursiva" : "iterativa"));
 
         Dijkstra dijkstra = new Dijkstra();
-        ResultadoDijkstra resultado = dijkstra.calcular(grafoLista, origen);
 
-        System.out.println("Dijkstra completado");
+        // Medición tiempo iterativo
+        long inicioIter = System.nanoTime();
+        ResultadoDijkstra resultadoIter = dijkstra.calcular(grafoLista, origen);
+        long finIter = System.nanoTime();
 
-        mostrarResultadosDijkstra(resultado, origen);
+        // Medición tiempo recursivo
+        long inicioRec = System.nanoTime();
+        ResultadoDijkstra resultadoRec = dijkstra.calcularRecursivo(grafoLista, origen);
+        long finRec = System.nanoTime();
+
+        double tiempoIterMs = (finIter - inicioIter) / 1_000_000.0;
+        double tiempoRecMs = (finRec - inicioRec) / 1_000_000.0;
+
+        ResultadoDijkstra resultadoParaTabla = usarRecursivo ? resultadoRec : resultadoIter;
+
+        System.out.println("Dijkstra iterativo: " + tiempoIterMs + " ms");
+        System.out.println("Dijkstra recursivo: " + tiempoRecMs + " ms");
+
+        mostrarResultadosDijkstra(resultadoParaTabla, origen, tiempoIterMs, tiempoRecMs, usarRecursivo);
     }
 
-    private void mostrarResultadosDijkstra(ResultadoDijkstra resultado, int origen) {
+    private void mostrarResultadosDijkstra(ResultadoDijkstra resultado,
+                                           int origen,
+                                           double tiempoIterMs,
+                                           double tiempoRecMs,
+                                           boolean usandoRecursivo) {
+
         tablaResultados.getColumns().clear();
         tablaResultados.getItems().clear();
 
@@ -426,8 +460,13 @@ public class RedLogisticaController implements Initializable {
 
         Integer destino = selectorDestino.getValue();
         StringBuilder detalles = new StringBuilder();
-        detalles.append("RESULTADOS - ALGORITMO DE DIJKSTRA\n");
-        detalles.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+
+        String nombreImplementacion = usandoRecursivo
+                ? "ALGORITMO DE DIJKSTRA (VERSIÓN RECURSIVA)"
+                : "ALGORITMO DE DIJKSTRA (VERSIÓN ITERATIVA)";
+
+        detalles.append(nombreImplementacion).append("\n");
+        detalles.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
         detalles.append("Origen: ").append(indiceANombre.get(origen)).append("\n\n");
 
         if (destino != null && destino != origen) {
@@ -452,7 +491,32 @@ public class RedLogisticaController implements Initializable {
         }
 
         detalles.append("La tabla muestra las distancias mínimas desde el origen\n");
-        detalles.append("hacia todos los demás Centros de Distribución.");
+        detalles.append("hacia todos los demás Centros de Distribución.\n\n");
+
+        detalles.append("COMPARACIÓN DE TIEMPOS DE EJECUCIÓN\n");
+        detalles.append("(solo cálculo del algoritmo, en esta ejecución)\n\n");
+        detalles.append("• Dijkstra iterativo: ")
+                .append(String.format(Locale.US, "%.3f ms", tiempoIterMs))
+                .append("\n");
+        detalles.append("• Dijkstra recursivo: ")
+                .append(String.format(Locale.US, "%.3f ms", tiempoRecMs))
+                .append("\n");
+
+        if (tiempoIterMs > 0 && tiempoRecMs > 0) {
+            double factor;
+            String masLento;
+            if (tiempoRecMs >= tiempoIterMs) {
+                factor = tiempoRecMs / tiempoIterMs;
+                masLento = "recursivo";
+            } else {
+                factor = tiempoIterMs / tiempoRecMs;
+                masLento = "iterativo";
+            }
+            detalles.append("• En esta ejecución, el algoritmo ")
+                    .append(masLento)
+                    .append(" fue ")
+                    .append(" más lento.\n");
+        }
 
         areaDetalles.setText(detalles.toString());
     }
