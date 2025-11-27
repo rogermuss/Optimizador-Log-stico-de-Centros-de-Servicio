@@ -16,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -69,13 +68,20 @@ public class RedLogisticaController implements Initializable {
         );
 
         selectorAlgoritmo.setOnAction(e -> cambiarAlgoritmo());
-
+        selectorOrigen.setOnAction(e -> verificarParametrosDijkstra());
+        selectorDestino.setOnAction(e -> verificarParametrosDijkstra());
         botonCargar.setOnAction(e -> abrirExplorador());
-
         botonEjecutarAlgoritmo.setOnAction(e -> ejecutarAlgoritmo());
-
         botonReturn.setOnAction(e -> regresarAlMenu());
     }
+    private void verificarParametrosDijkstra() {
+        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
+        if (algoritmoSeleccionado != null && algoritmoSeleccionado.contains("Dijkstra")) {
+            Integer origen = selectorOrigen.getValue();
+            botonEjecutarAlgoritmo.setDisable(origen == null);
+        }
+    }
+
 
     private void abrirExplorador() {
         FileChooser fileChooser = new FileChooser();
@@ -100,15 +106,12 @@ public class RedLogisticaController implements Initializable {
                 }
 
                 if (!validarFormatoCSV()) {
-                    mostrarAlerta("Error", "El CSV debe tener las columnas: Origen, Destino, Tiempo/Costo");
+                    mostrarAlerta("Error", "El CSV debe tener al menos 3 columnas: Origen, Destino, Costo/Tiempo");
                     return;
                 }
 
-
                 rellenarTabView();
-
                 construirGrafos();
-
                 selectorAlgoritmo.setDisable(false);
 
                 mostrarAlerta("Éxito", "Red logística cargada correctamente.\n" +
@@ -117,6 +120,9 @@ public class RedLogisticaController implements Initializable {
 
             } catch (IOException e) {
                 mostrarAlerta("Error", "Error al leer el archivo: " + e.getMessage());
+            } catch (Exception e) {
+                mostrarAlerta("Error", "Error procesando datos: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -139,14 +145,19 @@ public class RedLogisticaController implements Initializable {
         Set<String> verticesUnicos = new HashSet<>();
 
         for (String[] fila : datosCompletos) {
-            verticesUnicos.add(fila[0].trim()); // Origen
-            verticesUnicos.add(fila[1].trim()); // Destino
+            if (fila.length >= 3) {
+                verticesUnicos.add(fila[0].trim()); // Origen
+                verticesUnicos.add(fila[1].trim()); // Destino
+            }
         }
 
         numeroVertices = verticesUnicos.size();
 
         int indice = 0;
-        for (String nombreVertice : verticesUnicos) {
+        List<String> verticesOrdenados = new ArrayList<>(verticesUnicos);
+        Collections.sort(verticesOrdenados); // Ordenar para consistencia
+
+        for (String nombreVertice : verticesOrdenados) {
             nombreAIndice.put(nombreVertice, indice);
             indiceANombre.put(indice, nombreVertice);
             indice++;
@@ -155,11 +166,28 @@ public class RedLogisticaController implements Initializable {
         grafoLista = new GrafoLista(numeroVertices);
         grafoMatriz = new GrafoMatriz(numeroVertices);
 
+        int aristasAgregadas = 0;
         for (String[] fila : datosCompletos) {
             try {
+                if (fila.length < 3) {
+                    System.err.println("Fila incompleta: " + Arrays.toString(fila));
+                    continue;
+                }
+
                 String origen = fila[0].trim();
                 String destino = fila[1].trim();
-                int peso = Integer.parseInt(fila[2].trim());
+
+                String costoStr = fila[2].trim();
+                int peso = (int) Math.round(Double.parseDouble(costoStr));
+
+                if (!nombreAIndice.containsKey(origen)) {
+                    System.err.println("Origen no encontrado: " + origen);
+                    continue;
+                }
+                if (!nombreAIndice.containsKey(destino)) {
+                    System.err.println("Destino no encontrado: " + destino);
+                    continue;
+                }
 
                 int indiceOrigen = nombreAIndice.get(origen);
                 int indiceDestino = nombreAIndice.get(destino);
@@ -167,10 +195,20 @@ public class RedLogisticaController implements Initializable {
                 grafoLista.agregarArista(indiceOrigen, indiceDestino, peso);
                 grafoMatriz.agregarArista(indiceOrigen, indiceDestino, peso);
 
-            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                aristasAgregadas++;
+
+            } catch (NumberFormatException e) {
+                System.err.println("Error parseando número en fila: " + Arrays.toString(fila));
+                System.err.println("Error: " + e.getMessage());
+            } catch (Exception e) {
                 System.err.println("Error procesando fila: " + Arrays.toString(fila));
+                e.printStackTrace();
             }
         }
+
+        System.out.println(" Grafos construidos:");
+        System.out.println("   Vértices: " + numeroVertices);
+        System.out.println("   Aristas agregadas: " + aristasAgregadas);
 
         selectorOrigen.getItems().clear();
         selectorDestino.getItems().clear();
@@ -179,6 +217,28 @@ public class RedLogisticaController implements Initializable {
             selectorOrigen.getItems().add(i);
             selectorDestino.getItems().add(i);
         }
+
+        selectorOrigen.setConverter(new javafx.util.StringConverter<Integer>() {
+            @Override
+            public String toString(Integer idx) {
+                return idx == null ? "" : indiceANombre.get(idx) + " (ID: " + idx + ")";
+            }
+            @Override
+            public Integer fromString(String string) {
+                return null;
+            }
+        });
+
+        selectorDestino.setConverter(new javafx.util.StringConverter<Integer>() {
+            @Override
+            public String toString(Integer idx) {
+                return idx == null ? "" : indiceANombre.get(idx) + " (ID: " + idx + ")";
+            }
+            @Override
+            public Integer fromString(String string) {
+                return null;
+            }
+        });
     }
 
     private void cambiarAlgoritmo() {
@@ -191,7 +251,6 @@ public class RedLogisticaController implements Initializable {
         panelParametros.setVisible(true);
 
         if (algoritmoSeleccionado.contains("Dijkstra")) {
-            // Dijkstra necesita origen y opcionalmente destino
             labelOrigen.setVisible(true);
             selectorOrigen.setVisible(true);
             labelDestino.setVisible(true);
@@ -210,7 +269,6 @@ public class RedLogisticaController implements Initializable {
                     "- El resultado mostrará las distancias mínimas a todos los centros");
 
         } else {
-            // Floyd-Warshall no necesita parámetros
             labelOrigen.setVisible(false);
             selectorOrigen.setVisible(false);
             labelDestino.setVisible(false);
@@ -227,7 +285,12 @@ public class RedLogisticaController implements Initializable {
                     "- Permite análisis de conectividad total de la red");
         }
 
-        botonEjecutarAlgoritmo.setDisable(false);
+        if (algoritmoSeleccionado.contains("Dijkstra")) {
+            Integer origen = selectorOrigen.getValue();
+            botonEjecutarAlgoritmo.setDisable(origen == null);
+        } else {
+            botonEjecutarAlgoritmo.setDisable(false);
+        }
     }
 
     private void ejecutarAlgoritmo() {
@@ -253,15 +316,17 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
+        System.out.println("Ejecutando Dijkstra desde nodo: " + origen + " (" + indiceANombre.get(origen) + ")");
+
         Dijkstra dijkstra = new Dijkstra();
         ResultadoDijkstra resultado = dijkstra.calcular(grafoLista, origen);
 
+        System.out.println("Dijkstra completado");
 
         mostrarResultadosDijkstra(resultado, origen);
     }
 
     private void mostrarResultadosDijkstra(ResultadoDijkstra resultado, int origen) {
-
         tablaResultados.getColumns().clear();
 
         TableColumn<String[], String> colDestino = new TableColumn<>("Centro Destino");
@@ -345,6 +410,8 @@ public class RedLogisticaController implements Initializable {
     }
 
     private void ejecutarFloydWarshall() {
+        System.out.println("Ejecutando Floyd-Warshall");
+
         int[][] matrizGrafo = new int[numeroVertices][numeroVertices];
 
         for (int i = 0; i < numeroVertices; i++) {
@@ -355,6 +422,8 @@ public class RedLogisticaController implements Initializable {
 
         FloydWarshall floydWarshall = new FloydWarshall();
         ResultadoFloydWarshall resultado = floydWarshall.calcular(matrizGrafo);
+
+        System.out.println("Floyd-Warshall completado");
 
         mostrarResultadosFloydWarshall(resultado);
     }
@@ -398,7 +467,6 @@ public class RedLogisticaController implements Initializable {
 
         ObservableList<String[]> datosObservables = FXCollections.observableArrayList(datosResultado);
         tablaResultados.setItems(datosObservables);
-
 
         StringBuilder detalles = new StringBuilder();
         detalles.append("RESULTADOS - ALGORITMO DE FLOYD-WARSHALL\n");

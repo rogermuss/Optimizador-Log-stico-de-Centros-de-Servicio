@@ -1,6 +1,7 @@
 package Algorithms;
 import java.util.*;
 import EstructurasDeDatos.*;
+
 public class Dijkstra {
     public ResultadoDijkstra calcular(GrafoLista grafo, int origen) {
         int vertices = grafo.getVertices();
@@ -15,18 +16,24 @@ public class Dijkstra {
                 new PriorityQueue<>(new NodeComparator());
 
         colaPrioridad.add(new NodeComparator(origen, 0));
+
         while (!colaPrioridad.isEmpty()) {
             NodeComparator actual = colaPrioridad.poll();
             int u = actual.node;
+
+            if (actual.cost > distanciaMin[u]) {
+                continue;
+            }
 
             for(NodeComparator vecino: grafo.getListaAdyacencia().get(u)){
                 int v = vecino.node;
                 int costo = vecino.cost;
 
-                if(distanciaMin[u] != Integer.MAX_VALUE && distanciaMin[u] + costo < distanciaMin[v]) {
+                if(distanciaMin[u] != Integer.MAX_VALUE &&
+                        distanciaMin[u] + costo < distanciaMin[v]) {
                     distanciaMin[v] = distanciaMin[u] + costo;
                     rutaAnterior[v] = u;
-                    colaPrioridad.add(new NodeComparator(v, costo));
+                    colaPrioridad.add(new NodeComparator(v, distanciaMin[v]));
                 }
             }
         }
