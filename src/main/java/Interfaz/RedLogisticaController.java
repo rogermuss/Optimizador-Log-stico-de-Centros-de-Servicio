@@ -16,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -59,8 +58,8 @@ public class RedLogisticaController implements Initializable {
         nombreAIndice = new HashMap<>();
         indiceANombre = new HashMap<>();
 
-        selectorAlgoritmo.setDisable(true);
-        botonEjecutarAlgoritmo.setDisable(true);
+//        selectorAlgoritmo.setDisable(true);
+//        botonEjecutarAlgoritmo.setDisable(true);
         panelParametros.setVisible(false);
 
         selectorAlgoritmo.getItems().addAll(
@@ -69,12 +68,31 @@ public class RedLogisticaController implements Initializable {
         );
 
         selectorAlgoritmo.setOnAction(e -> cambiarAlgoritmo());
+        selectorOrigen.setOnAction(e -> {
+            verificarParametrosDijkstra();
+            if (selectorAlgoritmo.getValue() != null &&
+                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
+                ejecutarDijkstra();
+            }
+        });
+        selectorDestino.setOnAction(e -> {
+            if (selectorAlgoritmo.getValue() != null &&
+                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
+                ejecutarDijkstra();
+            }
+        });
 
         botonCargar.setOnAction(e -> abrirExplorador());
-
         botonEjecutarAlgoritmo.setOnAction(e -> ejecutarAlgoritmo());
-
         botonReturn.setOnAction(e -> regresarAlMenu());
+    }
+
+    private void verificarParametrosDijkstra() {
+        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
+        if (algoritmoSeleccionado != null && algoritmoSeleccionado.contains("Dijkstra")) {
+            Integer origen = selectorOrigen.getValue();
+           // botonEjecutarAlgoritmo.setDisable(origen == null);
+        }
     }
 
     private void abrirExplorador() {
@@ -94,21 +112,19 @@ public class RedLogisticaController implements Initializable {
                 encabezadosOriginales = lectorDeDatos.getEncabezados();
                 datosCompletos = lectorDeDatos.getDatos();
 
-                if (encabezadosOriginales == null || datosCompletos == null) {
+                if (encabezadosOriginales == null || datosCompletos == null || datosCompletos.isEmpty()) {
                     mostrarAlerta("Error", "Archivo CSV vacío o con formato incorrecto.");
                     return;
                 }
 
-                if (!validarFormatoCSV()) {
-                    mostrarAlerta("Error", "El CSV debe tener las columnas: Origen, Destino, Tiempo/Costo");
+                // Validar que tenga al menos 3 columnas (Origen, Destino, Costo)
+                if (encabezadosOriginales.length < 3) {
+                    mostrarAlerta("Error", "El CSV debe tener al menos 3 columnas: Origen, Destino, Costo");
                     return;
                 }
 
-
                 rellenarTabView();
-
                 construirGrafos();
-
                 selectorAlgoritmo.setDisable(false);
 
                 mostrarAlerta("Éxito", "Red logística cargada correctamente.\n" +
@@ -117,61 +133,113 @@ public class RedLogisticaController implements Initializable {
 
             } catch (IOException e) {
                 mostrarAlerta("Error", "Error al leer el archivo: " + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) {
+                mostrarAlerta("Error", "Error procesando datos: " + e.getMessage());
+                e.printStackTrace();
             }
         }
-    }
-
-    private boolean validarFormatoCSV() {
-        if (encabezadosOriginales.length < 3) {
-            return false;
-        }
-
-        for (String[] fila : datosCompletos) {
-            if (fila.length < 3) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private void construirGrafos() {
         Set<String> verticesUnicos = new HashSet<>();
 
+        // Recolectar todos los vértices únicos
         for (String[] fila : datosCompletos) {
-            verticesUnicos.add(fila[0].trim()); // Origen
-            verticesUnicos.add(fila[1].trim()); // Destino
+            if (fila.length >= 3) {
+                String origen = fila[0].trim();
+                String destino = fila[1].trim();
+
+                if (!origen.isEmpty() && !destino.isEmpty()) {
+                    verticesUnicos.add(origen);
+                    verticesUnicos.add(destino);
+                }
+            }
         }
 
         numeroVertices = verticesUnicos.size();
 
+        if (numeroVertices == 0) {
+            mostrarAlerta("Error", "No se encontraron vértices válidos en el archivo.");
+            return;
+        }
+
+        // Crear mapeo de nombres a índices (ordenado para consistencia)
         int indice = 0;
-        for (String nombreVertice : verticesUnicos) {
+        List<String> verticesOrdenados = new ArrayList<>(verticesUnicos);
+        Collections.sort(verticesOrdenados);
+
+        nombreAIndice.clear();
+        indiceANombre.clear();
+
+        for (String nombreVertice : verticesOrdenados) {
             nombreAIndice.put(nombreVertice, indice);
             indiceANombre.put(indice, nombreVertice);
             indice++;
         }
 
+        // Crear estructuras de grafos
         grafoLista = new GrafoLista(numeroVertices);
         grafoMatriz = new GrafoMatriz(numeroVertices);
 
+        // Agregar aristas
+        int aristasAgregadas = 0;
         for (String[] fila : datosCompletos) {
             try {
+                if (fila.length < 3) {
+                    System.err.println("Fila incompleta: " + Arrays.toString(fila));
+                    continue;
+                }
+
                 String origen = fila[0].trim();
                 String destino = fila[1].trim();
-                int peso = Integer.parseInt(fila[2].trim());
+                String costoStr = fila[2].trim();
 
-                int indiceOrigen = nombreAIndice.get(origen);
-                int indiceDestino = nombreAIndice.get(destino);
+                if (origen.isEmpty() || destino.isEmpty() || costoStr.isEmpty()) {
+                    System.err.println("Fila con datos vacíos: " + Arrays.toString(fila));
+                    continue;
+                }
 
+                // Parsear costo (puede ser decimal como 3.5)
+                double costoDouble = Double.parseDouble(costoStr);
+                int peso = (int) Math.round(costoDouble);
+
+                if (peso <= 0) {
+                    System.err.println("Costo inválido (<= 0): " + Arrays.toString(fila));
+                    continue;
+                }
+
+                Integer indiceOrigen = nombreAIndice.get(origen);
+                Integer indiceDestino = nombreAIndice.get(destino);
+
+                if (indiceOrigen == null || indiceDestino == null) {
+                    System.err.println("Nodo no encontrado: " + Arrays.toString(fila));
+                    continue;
+                }
+
+                // Agregar arista (bidireccional para redes logísticas)
                 grafoLista.agregarArista(indiceOrigen, indiceDestino, peso);
-                grafoMatriz.agregarArista(indiceOrigen, indiceDestino, peso);
+                grafoLista.agregarArista(indiceDestino, indiceOrigen, peso); // Bidireccional
 
-            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                grafoMatriz.agregarArista(indiceOrigen, indiceDestino, peso);
+                grafoMatriz.agregarArista(indiceDestino, indiceOrigen, peso); // Bidireccional
+
+                aristasAgregadas++;
+
+            } catch (NumberFormatException e) {
+                System.err.println("Error parseando número en fila: " + Arrays.toString(fila));
+                System.err.println("Error: " + e.getMessage());
+            } catch (Exception e) {
                 System.err.println("Error procesando fila: " + Arrays.toString(fila));
+                e.printStackTrace();
             }
         }
 
+        System.out.println("Grafos construidos:");
+        System.out.println("  Vértices: " + numeroVertices);
+        System.out.println("  Aristas agregadas: " + aristasAgregadas);
+
+        // Configurar selectores
         selectorOrigen.getItems().clear();
         selectorDestino.getItems().clear();
 
@@ -179,19 +247,53 @@ public class RedLogisticaController implements Initializable {
             selectorOrigen.getItems().add(i);
             selectorDestino.getItems().add(i);
         }
+
+        // Configurar convertidores para mostrar nombres
+        selectorOrigen.setConverter(new javafx.util.StringConverter<Integer>() {
+            @Override
+            public String toString(Integer idx) {
+                return idx == null ? "" : indiceANombre.get(idx);
+            }
+            @Override
+            public Integer fromString(String string) {
+                return null;
+            }
+        });
+
+        selectorDestino.setConverter(new javafx.util.StringConverter<Integer>() {
+            @Override
+            public String toString(Integer idx) {
+                return idx == null ? "" : indiceANombre.get(idx);
+            }
+            @Override
+            public Integer fromString(String string) {
+                return null;
+            }
+        });
     }
 
     private void cambiarAlgoritmo() {
-        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
 
+        String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado == null) {
             return;
         }
 
+        // Mostrar panel siempre que se seleccione un algoritmo
         panelParametros.setVisible(true);
 
+        // Limpiar selección previa siempre que el algoritmo cambie
+        selectorOrigen.getSelectionModel().clearSelection();
+        selectorDestino.getSelectionModel().clearSelection();
+        selectorOrigen.setValue(null);
+        selectorDestino.setValue(null);
+
+        // Limpia el área de detalles
+        areaDetalles.clear();
+
+        // ░░░░░░▓▓▓  DIJKSTRA  ▓▓▓░░░░░░
         if (algoritmoSeleccionado.contains("Dijkstra")) {
-            // Dijkstra necesita origen y opcionalmente destino
+
             labelOrigen.setVisible(true);
             selectorOrigen.setVisible(true);
             labelDestino.setVisible(true);
@@ -200,35 +302,43 @@ public class RedLogisticaController implements Initializable {
             labelOrigen.setText("Centro de Distribución Origen:");
             labelDestino.setText("Centro de Distribución Destino (Opcional):");
 
-            areaDetalles.setText("ALGORITMO DE DIJKSTRA\n" +
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
-                    "Este algoritmo calcula la ruta más corta desde un Centro de Distribución " +
-                    "origen hacia TODOS los demás centros de la red.\n\n" +
-                    "USO:\n" +
-                    "- Seleccione el Centro de Distribución de origen\n" +
-                    "- Opcionalmente, seleccione un destino específico para ver la ruta detallada\n" +
-                    "- El resultado mostrará las distancias mínimas a todos los centros");
+            areaDetalles.setText("""
+                ALGORITMO DE DIJKSTRA
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                Calcula la ruta más corta desde un centro origen
+                hacia todos los demás centros conectados.
+
+                Parámetros:
+                - Origen (obligatorio)
+                - Destino (opcional)
+                """);
+
+            // Habilitar botón ejecutar
+            botonEjecutarAlgoritmo.setDisable(false);
 
         } else {
-            // Floyd-Warshall no necesita parámetros
+
+            // ░░░░░░▓▓▓  FLOYD-WARSHALL  ▓▓▓░░░░░░
             labelOrigen.setVisible(false);
             selectorOrigen.setVisible(false);
             labelDestino.setVisible(false);
             selectorDestino.setVisible(false);
 
-            areaDetalles.setText("ALGORITMO DE FLOYD-WARSHALL\n" +
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
-                    "Este algoritmo calcula las distancias más cortas entre TODOS los pares " +
-                    "de Centros de Distribución en la red.\n\n" +
-                    "USO:\n" +
-                    "- No requiere parámetros adicionales\n" +
-                    "- Genera una matriz completa de conectividad\n" +
-                    "- Útil para cotización rápida de envíos entre cualquier par de centros\n" +
-                    "- Permite análisis de conectividad total de la red");
-        }
+            areaDetalles.setText("""
+                ALGORITMO DE FLOYD-WARSHALL
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        botonEjecutarAlgoritmo.setDisable(false);
+                Calcula las rutas más cortas entre todos los pares
+                de centros en la red.
+
+                No requiere parámetros.
+                """);
+
+            botonEjecutarAlgoritmo.setDisable(false);
+        }
     }
+
 
     private void ejecutarAlgoritmo() {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
@@ -253,16 +363,19 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
+        System.out.println("Ejecutando Dijkstra desde nodo: " + origen + " (" + indiceANombre.get(origen) + ")");
+
         Dijkstra dijkstra = new Dijkstra();
         ResultadoDijkstra resultado = dijkstra.calcular(grafoLista, origen);
 
+        System.out.println("Dijkstra completado");
 
         mostrarResultadosDijkstra(resultado, origen);
     }
 
     private void mostrarResultadosDijkstra(ResultadoDijkstra resultado, int origen) {
-
         tablaResultados.getColumns().clear();
+        tablaResultados.getItems().clear();
 
         TableColumn<String[], String> colDestino = new TableColumn<>("Centro Destino");
         colDestino.setCellValueFactory(data ->
@@ -290,7 +403,7 @@ public class RedLogisticaController implements Initializable {
             List<Integer> ruta = resultado.getRutaMinima(i);
             StringBuilder rutaStr = new StringBuilder();
 
-            if (ruta.isEmpty()) {
+            if (ruta == null || ruta.isEmpty() || distancia == Integer.MAX_VALUE) {
                 rutaStr.append("No hay ruta");
             } else {
                 for (int j = 0; j < ruta.size(); j++) {
@@ -315,7 +428,7 @@ public class RedLogisticaController implements Initializable {
         StringBuilder detalles = new StringBuilder();
         detalles.append("RESULTADOS - ALGORITMO DE DIJKSTRA\n");
         detalles.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
-        detalles.append("Origen: ").append(indiceANombre.get(origen)).append(" (Nodo ").append(origen).append(")\n\n");
+        detalles.append("Origen: ").append(indiceANombre.get(origen)).append("\n\n");
 
         if (destino != null && destino != origen) {
             int dist = resultado.getDistancia(destino);
@@ -325,7 +438,7 @@ public class RedLogisticaController implements Initializable {
             detalles.append("Distancia: ").append(dist == Integer.MAX_VALUE ? "∞" : dist).append("\n");
             detalles.append("Ruta: ");
 
-            if (rutaMin.isEmpty()) {
+            if (rutaMin == null || rutaMin.isEmpty() || dist == Integer.MAX_VALUE) {
                 detalles.append("No existe ruta");
             } else {
                 for (int i = 0; i < rutaMin.size(); i++) {
@@ -345,6 +458,8 @@ public class RedLogisticaController implements Initializable {
     }
 
     private void ejecutarFloydWarshall() {
+        System.out.println("Ejecutando Floyd-Warshall");
+
         int[][] matrizGrafo = new int[numeroVertices][numeroVertices];
 
         for (int i = 0; i < numeroVertices; i++) {
@@ -355,6 +470,8 @@ public class RedLogisticaController implements Initializable {
 
         FloydWarshall floydWarshall = new FloydWarshall();
         ResultadoFloydWarshall resultado = floydWarshall.calcular(matrizGrafo);
+
+        System.out.println("Floyd-Warshall completado");
 
         mostrarResultadosFloydWarshall(resultado);
     }
@@ -398,7 +515,6 @@ public class RedLogisticaController implements Initializable {
 
         ObservableList<String[]> datosObservables = FXCollections.observableArrayList(datosResultado);
         tablaResultados.setItems(datosObservables);
-
 
         StringBuilder detalles = new StringBuilder();
         detalles.append("RESULTADOS - ALGORITMO DE FLOYD-WARSHALL\n");
