@@ -279,29 +279,17 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
-        // Mostrar panel siempre
+        // Mostrar panel siempre que se seleccione un algoritmo
         panelParametros.setVisible(true);
 
-        // Limpiar selección previa para evitar errores en la primera ejecución
+        // Limpiar selección previa siempre que el algoritmo cambie
         selectorOrigen.getSelectionModel().clearSelection();
         selectorDestino.getSelectionModel().clearSelection();
         selectorOrigen.setValue(null);
         selectorDestino.setValue(null);
 
-        // Activar listeners que ejecutan Dijkstra al cambiar origen/destino
-        selectorOrigen.setOnAction(e -> {
-            if (selectorAlgoritmo.getValue() != null &&
-                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
-                ejecutarDijkstra();
-            }
-        });
-
-        selectorDestino.setOnAction(e -> {
-            if (selectorAlgoritmo.getValue() != null &&
-                    selectorAlgoritmo.getValue().contains("Dijkstra")) {
-                ejecutarDijkstra();
-            }
-        });
+        // Limpia el área de detalles
+        areaDetalles.clear();
 
         // ░░░░░░▓▓▓  DIJKSTRA  ▓▓▓░░░░░░
         if (algoritmoSeleccionado.contains("Dijkstra")) {
@@ -320,13 +308,13 @@ public class RedLogisticaController implements Initializable {
 
                 Calcula la ruta más corta desde un centro origen
                 hacia todos los demás centros conectados.
-                
+
                 Parámetros:
                 - Origen (obligatorio)
                 - Destino (opcional)
                 """);
 
-            // Siempre habilitado
+            // Habilitar botón ejecutar
             botonEjecutarAlgoritmo.setDisable(false);
 
         } else {
@@ -343,13 +331,14 @@ public class RedLogisticaController implements Initializable {
 
                 Calcula las rutas más cortas entre todos los pares
                 de centros en la red.
-                
+
                 No requiere parámetros.
                 """);
 
             botonEjecutarAlgoritmo.setDisable(false);
         }
     }
+
 
     private void ejecutarAlgoritmo() {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
