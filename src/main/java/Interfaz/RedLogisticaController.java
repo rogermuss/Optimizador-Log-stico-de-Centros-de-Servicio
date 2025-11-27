@@ -74,6 +74,7 @@ public class RedLogisticaController implements Initializable {
         botonEjecutarAlgoritmo.setOnAction(e -> ejecutarAlgoritmo());
         botonReturn.setOnAction(e -> regresarAlMenu());
     }
+
     private void verificarParametrosDijkstra() {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado != null && algoritmoSeleccionado.contains("Dijkstra")) {
@@ -81,7 +82,6 @@ public class RedLogisticaController implements Initializable {
             botonEjecutarAlgoritmo.setDisable(origen == null);
         }
     }
-
 
     private void abrirExplorador() {
         FileChooser fileChooser = new FileChooser();
@@ -100,13 +100,14 @@ public class RedLogisticaController implements Initializable {
                 encabezadosOriginales = lectorDeDatos.getEncabezados();
                 datosCompletos = lectorDeDatos.getDatos();
 
-                if (encabezadosOriginales == null || datosCompletos == null) {
+                if (encabezadosOriginales == null || datosCompletos == null || datosCompletos.isEmpty()) {
                     mostrarAlerta("Error", "Archivo CSV vacío o con formato incorrecto.");
                     return;
                 }
 
-                if (!validarFormatoCSV()) {
-                    mostrarAlerta("Error", "El CSV debe tener al menos 3 columnas: Origen, Destino, Costo/Tiempo");
+                // Validar que tenga al menos 3 columnas (Origen, Destino, Costo)
+                if (encabezadosOriginales.length < 3) {
+                    mostrarAlerta("Error", "El CSV debe tener al menos 3 columnas: Origen, Destino, Costo");
                     return;
                 }
 
@@ -120,6 +121,7 @@ public class RedLogisticaController implements Initializable {
 
             } catch (IOException e) {
                 mostrarAlerta("Error", "Error al leer el archivo: " + e.getMessage());
+                e.printStackTrace();
             } catch (Exception e) {
                 mostrarAlerta("Error", "Error procesando datos: " + e.getMessage());
                 e.printStackTrace();
@@ -127,35 +129,36 @@ public class RedLogisticaController implements Initializable {
         }
     }
 
-    private boolean validarFormatoCSV() {
-        if (encabezadosOriginales.length < 3) {
-            return false;
-        }
-
-        for (String[] fila : datosCompletos) {
-            if (fila.length < 3) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private void construirGrafos() {
         Set<String> verticesUnicos = new HashSet<>();
 
+        // Recolectar todos los vértices únicos
         for (String[] fila : datosCompletos) {
             if (fila.length >= 3) {
-                verticesUnicos.add(fila[0].trim()); // Origen
-                verticesUnicos.add(fila[1].trim()); // Destino
+                String origen = fila[0].trim();
+                String destino = fila[1].trim();
+
+                if (!origen.isEmpty() && !destino.isEmpty()) {
+                    verticesUnicos.add(origen);
+                    verticesUnicos.add(destino);
+                }
             }
         }
 
         numeroVertices = verticesUnicos.size();
 
+        if (numeroVertices == 0) {
+            mostrarAlerta("Error", "No se encontraron vértices válidos en el archivo.");
+            return;
+        }
+
+        // Crear mapeo de nombres a índices (ordenado para consistencia)
         int indice = 0;
         List<String> verticesOrdenados = new ArrayList<>(verticesUnicos);
-        Collections.sort(verticesOrdenados); // Ordenar para consistencia
+        Collections.sort(verticesOrdenados);
+
+        nombreAIndice.clear();
+        indiceANombre.clear();
 
         for (String nombreVertice : verticesOrdenados) {
             nombreAIndice.put(nombreVertice, indice);
@@ -163,9 +166,11 @@ public class RedLogisticaController implements Initializable {
             indice++;
         }
 
+        // Crear estructuras de grafos
         grafoLista = new GrafoLista(numeroVertices);
         grafoMatriz = new GrafoMatriz(numeroVertices);
 
+        // Agregar aristas
         int aristasAgregadas = 0;
         for (String[] fila : datosCompletos) {
             try {
@@ -176,24 +181,36 @@ public class RedLogisticaController implements Initializable {
 
                 String origen = fila[0].trim();
                 String destino = fila[1].trim();
-
                 String costoStr = fila[2].trim();
-                int peso = (int) Math.round(Double.parseDouble(costoStr));
 
-                if (!nombreAIndice.containsKey(origen)) {
-                    System.err.println("Origen no encontrado: " + origen);
-                    continue;
-                }
-                if (!nombreAIndice.containsKey(destino)) {
-                    System.err.println("Destino no encontrado: " + destino);
+                if (origen.isEmpty() || destino.isEmpty() || costoStr.isEmpty()) {
+                    System.err.println("Fila con datos vacíos: " + Arrays.toString(fila));
                     continue;
                 }
 
-                int indiceOrigen = nombreAIndice.get(origen);
-                int indiceDestino = nombreAIndice.get(destino);
+                // Parsear costo (puede ser decimal como 3.5)
+                double costoDouble = Double.parseDouble(costoStr);
+                int peso = (int) Math.round(costoDouble);
 
+                if (peso <= 0) {
+                    System.err.println("Costo inválido (<= 0): " + Arrays.toString(fila));
+                    continue;
+                }
+
+                Integer indiceOrigen = nombreAIndice.get(origen);
+                Integer indiceDestino = nombreAIndice.get(destino);
+
+                if (indiceOrigen == null || indiceDestino == null) {
+                    System.err.println("Nodo no encontrado: " + Arrays.toString(fila));
+                    continue;
+                }
+
+                // Agregar arista (bidireccional para redes logísticas)
                 grafoLista.agregarArista(indiceOrigen, indiceDestino, peso);
+                grafoLista.agregarArista(indiceDestino, indiceOrigen, peso); // Bidireccional
+
                 grafoMatriz.agregarArista(indiceOrigen, indiceDestino, peso);
+                grafoMatriz.agregarArista(indiceDestino, indiceOrigen, peso); // Bidireccional
 
                 aristasAgregadas++;
 
@@ -206,10 +223,11 @@ public class RedLogisticaController implements Initializable {
             }
         }
 
-        System.out.println(" Grafos construidos:");
-        System.out.println("   Vértices: " + numeroVertices);
-        System.out.println("   Aristas agregadas: " + aristasAgregadas);
+        System.out.println("Grafos construidos:");
+        System.out.println("  Vértices: " + numeroVertices);
+        System.out.println("  Aristas agregadas: " + aristasAgregadas);
 
+        // Configurar selectores
         selectorOrigen.getItems().clear();
         selectorDestino.getItems().clear();
 
@@ -218,10 +236,11 @@ public class RedLogisticaController implements Initializable {
             selectorDestino.getItems().add(i);
         }
 
+        // Configurar convertidores para mostrar nombres
         selectorOrigen.setConverter(new javafx.util.StringConverter<Integer>() {
             @Override
             public String toString(Integer idx) {
-                return idx == null ? "" : indiceANombre.get(idx) + " (ID: " + idx + ")";
+                return idx == null ? "" : indiceANombre.get(idx);
             }
             @Override
             public Integer fromString(String string) {
@@ -232,7 +251,7 @@ public class RedLogisticaController implements Initializable {
         selectorDestino.setConverter(new javafx.util.StringConverter<Integer>() {
             @Override
             public String toString(Integer idx) {
-                return idx == null ? "" : indiceANombre.get(idx) + " (ID: " + idx + ")";
+                return idx == null ? "" : indiceANombre.get(idx);
             }
             @Override
             public Integer fromString(String string) {
@@ -268,6 +287,9 @@ public class RedLogisticaController implements Initializable {
                     "- Opcionalmente, seleccione un destino específico para ver la ruta detallada\n" +
                     "- El resultado mostrará las distancias mínimas a todos los centros");
 
+            Integer origen = selectorOrigen.getValue();
+            botonEjecutarAlgoritmo.setDisable(origen == null);
+
         } else {
             labelOrigen.setVisible(false);
             selectorOrigen.setVisible(false);
@@ -283,12 +305,7 @@ public class RedLogisticaController implements Initializable {
                     "- Genera una matriz completa de conectividad\n" +
                     "- Útil para cotización rápida de envíos entre cualquier par de centros\n" +
                     "- Permite análisis de conectividad total de la red");
-        }
 
-        if (algoritmoSeleccionado.contains("Dijkstra")) {
-            Integer origen = selectorOrigen.getValue();
-            botonEjecutarAlgoritmo.setDisable(origen == null);
-        } else {
             botonEjecutarAlgoritmo.setDisable(false);
         }
     }
@@ -355,7 +372,7 @@ public class RedLogisticaController implements Initializable {
             List<Integer> ruta = resultado.getRutaMinima(i);
             StringBuilder rutaStr = new StringBuilder();
 
-            if (ruta.isEmpty()) {
+            if (ruta == null || ruta.isEmpty() || distancia == Integer.MAX_VALUE) {
                 rutaStr.append("No hay ruta");
             } else {
                 for (int j = 0; j < ruta.size(); j++) {
@@ -380,7 +397,7 @@ public class RedLogisticaController implements Initializable {
         StringBuilder detalles = new StringBuilder();
         detalles.append("RESULTADOS - ALGORITMO DE DIJKSTRA\n");
         detalles.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
-        detalles.append("Origen: ").append(indiceANombre.get(origen)).append(" (Nodo ").append(origen).append(")\n\n");
+        detalles.append("Origen: ").append(indiceANombre.get(origen)).append("\n\n");
 
         if (destino != null && destino != origen) {
             int dist = resultado.getDistancia(destino);
@@ -390,7 +407,7 @@ public class RedLogisticaController implements Initializable {
             detalles.append("Distancia: ").append(dist == Integer.MAX_VALUE ? "∞" : dist).append("\n");
             detalles.append("Ruta: ");
 
-            if (rutaMin.isEmpty()) {
+            if (rutaMin == null || rutaMin.isEmpty() || dist == Integer.MAX_VALUE) {
                 detalles.append("No existe ruta");
             } else {
                 for (int i = 0; i < rutaMin.size(); i++) {
