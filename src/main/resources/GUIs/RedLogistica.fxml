@@ -14,13 +14,21 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Interfaz.RedLogisticaController">
+<BorderPane prefHeight="800.0" prefWidth="1400.0"
+            xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Interfaz.RedLogisticaController"
+            style="-fx-background-color: #0F3048;">
+
     <top>
-        <VBox fx:id="panelSuperiorBanner" alignment="CENTER" style="-fx-background-color: #2C3E50;">
+        <VBox fx:id="panelSuperiorBanner"
+              alignment="CENTER"
+              style="-fx-background-color: #154D71;">
             <children>
-                <Label text="SISTEMA DE OPTIMIZACIÓN DE RUTAS LOGÍSTICAS" textFill="WHITE">
+                <Label text="PROBLEMAS DE RUTAS Y DISTANCIA (CAMINO MÁS CORTO)"
+                       textFill="WHITE">
                     <font>
-                        <Font name="System Bold" size="24.0" />
+                        <Font name="System Bold" size="22.0" />
                     </font>
                     <padding>
                         <Insets bottom="15.0" top="15.0" />
@@ -31,12 +39,13 @@
     </top>
 
     <right>
-        <VBox prefWidth="320.0" spacing="12.0" style="-fx-background-color: #ECF0F1; -fx-border-color: #BDC3C7; -fx-border-width: 0 0 0 2;">
+        <VBox prefWidth="320.0" spacing="12.0"
+              style="-fx-background-color: #0F3048; -fx-border-color: #1C6EA4; -fx-border-width: 0 0 0 2;">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <children>
-                <Label text="Configuración" textFill="#2C3E50">
+                <Label text="Configuración" textFill="#FFF9AF">
                     <font>
                         <Font name="System Bold" size="20.0" />
                     </font>
@@ -46,14 +55,14 @@
                 </Label>
 
                 <Button fx:id="botonCargar" maxWidth="1.7976931348623157E308"
-                        style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"
-                        text="📁 Cargar Red Logística (CSV)">
+                        style="-fx-background-color: #1C6EA4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 10;"
+                        text="Cargar red logística (CSV)">
                     <VBox.margin>
                         <Insets bottom="15.0" />
                     </VBox.margin>
                 </Button>
 
-                <Label text="Algoritmo de Optimización" textFill="#34495E">
+                <Label text="Algoritmo de Optimización" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
@@ -61,7 +70,7 @@
 
                 <ComboBox fx:id="selectorAlgoritmo" maxWidth="1.7976931348623157E308"
                           promptText="Seleccione un algoritmo"
-                          style="-fx-background-color: white; -fx-border-color: #3498DB; -fx-border-width: 2;">
+                          style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #33A1E0; -fx-border-width: 2;">
                     <VBox.margin>
                         <Insets bottom="15.0" />
                     </VBox.margin>
@@ -70,7 +79,7 @@
                 <!-- Panel de parámetros -->
                 <VBox fx:id="panelParametros" spacing="10.0" visible="false">
                     <children>
-                        <Label fx:id="labelOrigen" text="Centro de Distribución Origen:" textFill="#34495E">
+                        <Label fx:id="labelOrigen" text="Centro de Distribución Origen:" textFill="#FFF9AF">
                             <font>
                                 <Font name="System Bold" size="13.0" />
                             </font>
@@ -78,13 +87,13 @@
 
                         <ComboBox fx:id="selectorOrigen" maxWidth="1.7976931348623157E308"
                                   promptText="Seleccione origen"
-                                  style="-fx-background-color: white; -fx-border-color: #27AE60; -fx-border-width: 2;">
+                                  style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #27AE60; -fx-border-width: 2;">
                             <VBox.margin>
                                 <Insets bottom="10.0" />
                             </VBox.margin>
                         </ComboBox>
 
-                        <Label fx:id="labelDestino" text="Centro de Distribución Destino:" textFill="#34495E">
+                        <Label fx:id="labelDestino" text="Centro de Distribución Destino:" textFill="#FFF9AF">
                             <font>
                                 <Font name="System Bold" size="13.0" />
                             </font>
@@ -92,7 +101,7 @@
 
                         <ComboBox fx:id="selectorDestino" maxWidth="1.7976931348623157E308"
                                   promptText="Seleccione destino (opcional)"
-                                  style="-fx-background-color: white; -fx-border-color: #E74C3C; -fx-border-width: 2;">
+                                  style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #E74C3C; -fx-border-width: 2;">
                         </ComboBox>
                     </children>
                     <VBox.margin>
@@ -101,24 +110,25 @@
                 </VBox>
 
                 <Button fx:id="botonEjecutarAlgoritmo" disable="true" maxWidth="1.7976931348623157E308"
-                        style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"
-                        text="▶ Ejecutar Algoritmo">
+                        style="-fx-background-color: #33A1E0; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 10;"
+                        text="Ejecutar algoritmo">
                     <VBox.margin>
                         <Insets bottom="20.0" top="5.0" />
                     </VBox.margin>
                 </Button>
 
                 <!-- Área de detalles -->
-                <Label text="Información del Algoritmo" textFill="#2C3E50">
+                <Label text="Información del algoritmo" textFill="#FFF9AF">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Label>
 
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent;">
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                            style="-fx-background-color: transparent;">
                     <content>
                         <TextArea fx:id="areaDetalles" editable="false" prefHeight="250.0" wrapText="true"
-                                  style="-fx-control-inner-background: #FFFFFF; -fx-border-color: #95A5A6; -fx-border-width: 1;">
+                                  style="-fx-control-inner-background: #10263A; -fx-text-fill: #FFFFFF; -fx-border-color: #1C6EA4; -fx-border-width: 1;">
                             <VBox.margin>
                                 <Insets />
                             </VBox.margin>
@@ -130,8 +140,8 @@
                 </ScrollPane>
 
                 <Button fx:id="botonReturn" maxWidth="1.7976931348623157E308"
-                        style="-fx-background-color: #7F8C8D; -fx-text-fill: white; -fx-font-weight: bold;"
-                        text="← Regresar al Menú Principal">
+                        style="-fx-background-color: transparent; -fx-text-fill: #FFF9AF; -fx-font-weight: bold; -fx-border-color: #FFF9AF; -fx-border-width: 1.5; -fx-background-radius: 10; -fx-border-radius: 10;"
+                        text="Regresar al menú principal">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
@@ -141,21 +151,23 @@
     </right>
 
     <center>
-        <TabPane style="-fx-border-color: #BDC3C7; -fx-border-width: 0 2 0 0;" tabClosingPolicy="UNAVAILABLE">
+        <TabPane style="-fx-border-color: #1C6EA4; -fx-border-width: 0 2 0 0;"
+                 tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <Tab text="📊 Datos de la Red">
+                <Tab text="Datos de la red">
                     <content>
                         <VBox spacing="10.0">
                             <padding>
                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                             </padding>
                             <children>
-                                <Label text="Conexiones de la Red Logística" textFill="#2C3E50">
+                                <Label text="Conexiones de la red logística" textFill="#154D71">
                                     <font>
                                         <Font name="System Bold" size="16.0" />
                                     </font>
                                 </Label>
-                                <Label text="Visualización de las rutas entre Centros de Distribución con sus tiempos/costos" textFill="#7F8C8D">
+                                <Label text="Visualización de las rutas entre Centros de Distribución con sus tiempos/costos"
+                                       textFill="#7F8C8D">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
@@ -164,25 +176,26 @@
                                     </VBox.margin>
                                 </Label>
                                 <TableView fx:id="tablaDatos" VBox.vgrow="ALWAYS"
-                                           style="-fx-border-color: #BDC3C7; -fx-border-width: 1;" />
+                                           style="-fx-border-color: #1C6EA4; -fx-border-width: 1;" />
                             </children>
                         </VBox>
                     </content>
                 </Tab>
 
-                <Tab text="🎯 Resultados del Algoritmo">
+                <Tab text="Resultados del algoritmo">
                     <content>
                         <VBox spacing="10.0">
                             <padding>
                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                             </padding>
                             <children>
-                                <Label text="Resultados de Optimización" textFill="#2C3E50">
+                                <Label text="Resultados de optimización" textFill="#154D71">
                                     <font>
                                         <Font name="System Bold" size="16.0" />
                                     </font>
                                 </Label>
-                                <Label text="Rutas optimizadas y distancias mínimas calculadas por el algoritmo" textFill="#7F8C8D">
+                                <Label text="Rutas optimizadas y distancias mínimas calculadas por el algoritmo"
+                                       textFill="#7F8C8D">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
@@ -191,7 +204,7 @@
                                     </VBox.margin>
                                 </Label>
                                 <TableView fx:id="tablaResultados" VBox.vgrow="ALWAYS"
-                                           style="-fx-border-color: #BDC3C7; -fx-border-width: 1;" />
+                                           style="-fx-border-color: #1C6EA4; -fx-border-width: 1;" />
                             </children>
                         </VBox>
                     </content>
