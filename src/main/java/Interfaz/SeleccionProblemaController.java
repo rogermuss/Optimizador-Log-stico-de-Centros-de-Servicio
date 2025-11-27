@@ -97,6 +97,7 @@ public class SeleccionProblemaController {
         venNuevo.setMaximized(venActual.isMaximized());
         venNuevo.setFullScreen(venActual.isFullScreen());
         venActual.close();
+        venNuevo.setFullScreenExitHint("");
         venNuevo.show();
     }
 
@@ -113,6 +114,7 @@ public class SeleccionProblemaController {
         venNuevo.setMaximized(venActual.isMaximized());
         venNuevo.setFullScreen(venActual.isFullScreen());
         venActual.close();
+        venNuevo.setFullScreenExitHint("");
         venNuevo.show();
     }
 
@@ -129,6 +131,7 @@ public class SeleccionProblemaController {
         venNuevo.setMaximized(venActual.isMaximized());
         venNuevo.setFullScreen(venActual.isFullScreen());
         venActual.close();
+        venNuevo.setFullScreenExitHint("");
         venNuevo.show();
     }
 }

@@ -132,6 +132,7 @@ public class MenuPrincipalController {
         venNuevo.setMaximized(venActual.isMaximized());
         venNuevo.setFullScreen(venActual.isFullScreen());
         venActual.close();
+        venNuevo.setFullScreenExitHint("");
         venNuevo.show();
     }
 
