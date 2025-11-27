@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #0F3048;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Interfaz.SeleccionProblemaController">
+    <children>
+
+        <VBox spacing="40.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="40.0">
+
+            <children>
+                <VBox spacing="8.0">
+                    <children>
+                        <Label text="Selecciona el problema a utilizar" textFill="white">
+                            <font>
+                                <Font name="System Bold" size="32.0" />
+                            </font>
+                        </Label>
+                        <Label text="Cada opción representa un enfoque distinto del proyecto Graph Explorer." textFill="#FFF9AF" wrapText="true">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER" spacing="60.0">
+                    <padding>
+                        <Insets bottom="20.0" top="20.0" />
+                    </padding>
+
+                    <VBox fx:id="columnaProblema1" alignment="TOP_CENTER" prefHeight="660.0" prefWidth="480.0" spacing="16.0" style="-fx-background-radius: 20;">
+                        <padding>
+                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                        </padding>
+                        <children>
+                            <StackPane prefHeight="320.0">
+                                <children>
+                                    <ImageView fx:id="gifProblema1" fitHeight="320.0" fitWidth="440.0" preserveRatio="true">
+                                        <image>
+                                            <Image url="@Pr1GIF.gif" />
+                                        </image>
+                                    </ImageView>
+                                </children>
+                            </StackPane>
+
+                            <VBox alignment="CENTER" prefHeight="220.0" spacing="10.0" style="-fx-background-color: rgba(15,48,72,0.95); -fx-background-radius: 16;">
+                                <children>
+                                    <Label text="Problemas de Rutas y Distancia (Camino Más Corto)" textAlignment="CENTER" textFill="white" wrapText="true">
+                                        <font>
+                                            <Font name="System Bold" size="22.0" />
+                                        </font>
+                                    </Label>
+                                    <Label text="Aplicacion del algoritmo de Dijkstra y el Algoritmo de Floyd-Warshall para encontrar el camino mas corto" textAlignment="CENTER" textFill="#FFF9AF" wrapText="true">
+                                        <font>
+                                            <Font size="12.0" />
+                                        </font>
+                                    </Label>
+                                    <Button fx:id="botonProblema1" onAction="#alElegirProblema1" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: #1C6EA4; -fx-text-fill: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #FFF9AF; -fx-border-width: 2;" text="Utilizar">
+                                        <font>
+                                            <Font name="System Bold" size="16.0" />
+                                        </font>
+                                    </Button>
+                                </children>
+                            </VBox>
+                        </children>
+                    </VBox>
+
+                    <VBox fx:id="columnaProblema2" alignment="TOP_CENTER" prefHeight="660.0" prefWidth="480.0" spacing="16.0" style="-fx-background-radius: 20;">
+                        <padding>
+                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                        </padding>
+                        <children>
+                            <StackPane prefHeight="320.0">
+                                <children>
+                                    <ImageView fx:id="gifProblema2" fitHeight="320.0" fitWidth="440.0" preserveRatio="true">
+                                        <image>
+                                            <Image url="@Pr2Gif.gif" />
+                                        </image>
+                                    </ImageView>
+                                </children>
+                            </StackPane>
+
+                            <VBox alignment="CENTER" prefHeight="220.0" spacing="10.0" style="-fx-background-color: rgba(15,48,72,0.95); -fx-background-radius: 16;">
+                                <children>
+                                    <Label text="Problemas de Infraestructura y Conexión (Costo Mínimo)" textAlignment="CENTER" textFill="white" wrapText="true">
+                                        <font>
+                                            <Font name="System Bold" size="22.0" />
+                                        </font>
+                                    </Label>
+                                    <Label text="Aplicacion del Algoritmo de Prim en el diseño de arboles de expansion minima" textAlignment="CENTER" textFill="#FFF9AF" wrapText="true">
+                                        <font>
+                                            <Font size="14.0" />
+                                        </font>
+                                    </Label>
+                                    <Button fx:id="botonProblema2" onAction="#alElegirProblema2" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: #1C6EA4; -fx-text-fill: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #FFF9AF; -fx-border-width: 2;" text="Utilizar">
+                                        <font>
+                                            <Font name="System Bold" size="16.0" />
+                                        </font>
+                                    </Button>
+                                </children>
+                            </VBox>
+                        </children>
+                    </VBox>
+
+                    <VBox fx:id="columnaProblema3" alignment="TOP_CENTER" prefHeight="660.0" prefWidth="480.0" spacing="16.0" style="-fx-background-radius: 20;">
+                        <padding>
+                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                        </padding>
+                        <children>
+                            <StackPane prefHeight="320.0">
+                                <children>
+                                    <ImageView fx:id="gifProblema3" fitHeight="320.0" fitWidth="440.0" preserveRatio="true">
+                                        <image>
+                                            <Image url="@Pr3Gif.gif" />
+                                        </image>
+                                    </ImageView>
+                                </children>
+                            </StackPane>
+
+                            <VBox alignment="CENTER" prefHeight="220.0" spacing="10.0" style="-fx-background-color: rgba(15,48,72,0.95); -fx-background-radius: 16;">
+                                <children>
+                                    <Label text="Árbol Balanceado" textAlignment="CENTER" textFill="white">
+                                        <font>
+                                            <Font name="System Bold" size="22.0" />
+                                        </font>
+                                    </Label>
+                                    <Label text="Implementacion de un inventario, sistema de busqueda y sistema de recorridos" textAlignment="CENTER" textFill="#FFF9AF" wrapText="true">
+                                        <font>
+                                            <Font size="14.0" />
+                                        </font>
+                                    </Label>
+                                    <Button fx:id="botonProblema3" onAction="#alElegirProblema3" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: #1C6EA4; -fx-text-fill: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #FFF9AF; -fx-border-width: 2;" text="Utilizar">
+                                        <font>
+                                            <Font name="System Bold" size="16.0" />
+                                        </font>
+                                    </Button>
+                                </children>
+                            </VBox>
+                        </children>
+                    </VBox>
+
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

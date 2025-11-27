@@ -24,7 +24,7 @@ public class MenuPrincipalController {
     private static final String BOTON_NORMAL =
             "-fx-background-color: #1C6EA4;" +
                     "-fx-text-fill: white;" +
-                    "-fx-border-color: #154d71;" +
+                    "-fx-border-color: #fff9af;" +
                     "-fx-border-width: 2;" +
                     "-fx-background-radius: 14;" +
                     "-fx-border-radius: 14;" +
@@ -36,7 +36,7 @@ public class MenuPrincipalController {
     private static final String BOTON_HOVER =
             "-fx-background-color: #33A1E0;" +
                     "-fx-text-fill: #ffffff;" +
-                    "-fx-border-color: #154d71;" +
+                    "-fx-border-color: #fff9af;" +
                     "-fx-border-width: 2;" +
                     "-fx-background-radius: 14;" +
                     "-fx-border-radius: 14;" +
@@ -122,10 +122,9 @@ public class MenuPrincipalController {
     @FXML
     private void alDarOptimizar(ActionEvent e) throws IOException {
         FXMLLoader loader = new FXMLLoader(
-                GraphExplorerAPP.class.getResource("SeleccionProblema.fxml")
+                GraphExplorerAPP.class.getResource("/GUIs/SeleccionProblema.fxml")
         );
         Parent raiz = loader.load();
-
         Stage venActual = (Stage) botonOptimizar.getScene().getWindow();
         Stage venNuevo = new Stage();
         venNuevo.setTitle("GraphExplorer | Selección de Problema");
