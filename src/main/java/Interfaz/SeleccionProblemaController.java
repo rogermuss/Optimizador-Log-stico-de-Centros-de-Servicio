@@ -28,6 +28,8 @@ public class SeleccionProblemaController {
     @FXML private Button botonProblema1;
     @FXML private Button botonProblema2;
     @FXML private Button botonProblema3;
+    @FXML
+    private Button botonSalirSeleccion;
 
     private static final String COLUMNA_NORMAL =
             "-fx-background-color: rgba(21,77,113,0.80);" +
@@ -134,4 +136,28 @@ public class SeleccionProblemaController {
         venNuevo.setFullScreenExitHint("");
         venNuevo.show();
     }
+
+    @FXML
+    private void alDarSalir(javafx.event.ActionEvent e) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    GraphExplorerAPP.class.getResource("/GUIs/MenuPrincipal.fxml")
+            );
+            Parent raiz = loader.load();
+
+            Stage venActual = (Stage) botonSalirSeleccion.getScene().getWindow();
+            Stage venNuevo = new Stage();
+            venNuevo.setTitle("GraphExplorer | Menú principal");
+            venNuevo.setScene(new Scene(raiz, venActual.getWidth(), venActual.getHeight()));
+            venNuevo.setMaximized(venActual.isMaximized());
+            venNuevo.setFullScreen(venActual.isFullScreen());
+            venActual.close();
+            venNuevo.setFullScreenExitHint("");
+            venNuevo.show();
+
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 }

@@ -1,14 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="GUIs.InfraestructuraYConexion"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane prefHeight="800.0" prefWidth="1400.0"
+            xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Interfaz.InfraestructuraYConexionController">
 
-</AnchorPane>
+    <top>
+        <VBox alignment="CENTER" style="-fx-background-color: #154D71;">
+            <children>
+                <Label text="INFRAESTRUCTURA Y CONEXIÓN - ÁRBOL DE EXPANSIÓN MÍNIMA"
+                       textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="22.0" />
+                    </font>
+                    <padding>
+                        <Insets top="15.0" bottom="15.0" />
+                    </padding>
+                </Label>
+            </children>
+        </VBox>
+    </top>
+
+    <right>
+        <VBox prefWidth="320.0" spacing="12.0"
+              style="-fx-background-color: #0F3048; -fx-border-color: #1C6EA4; -fx-border-width: 0 0 0 2;">
+            <padding>
+                <Insets top="20.0" bottom="20.0" left="20.0" right="20.0" />
+            </padding>
+            <children>
+                <Label text="Configuración" textFill="#FFF9AF">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Label>
+
+                <Button fx:id="botonCargarRed"
+                        maxWidth="1.7976931348623157E308"
+                        text="Cargar red de conexión (CSV)"
+                        style="-fx-background-color: #1C6EA4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 10;">
+                    <VBox.margin>
+                        <Insets bottom="15.0" />
+                    </VBox.margin>
+                </Button>
+
+                <Label text="Algoritmo de Prim" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="5.0" />
+                    </VBox.margin>
+                </Label>
+
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                            style="-fx-background-color: transparent;">
+                    <content>
+                        <TextArea fx:id="areaDetalles"
+                                  editable="false"
+                                  wrapText="true"
+                                  prefHeight="230.0"
+                                  style="-fx-control-inner-background: #10263A; -fx-text-fill: #FFFFFF; -fx-border-color: #1C6EA4; -fx-border-width: 1;">
+                        </TextArea>
+                    </content>
+                    <VBox.margin>
+                        <Insets bottom="15.0" />
+                    </VBox.margin>
+                </ScrollPane>
+
+                <Button fx:id="botonEjecutarPrim"
+                        disable="true"
+                        maxWidth="1.7976931348623157E308"
+                        text="Ejecutar algoritmo de Prim"
+                        style="-fx-background-color: #33A1E0; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;">
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Button>
+
+                <Button fx:id="botonRegresarMenu"
+                        maxWidth="1.7976931348623157E308"
+                        text="Regresar al menú"
+                        style="-fx-background-color: transparent; -fx-text-fill: #FFF9AF; -fx-border-color: #FFF9AF; -fx-border-width: 1.5; -fx-background-radius: 10; -fx-border-radius: 10;">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Button>
+            </children>
+        </VBox>
+    </right>
+
+    <center>
+        <TabPane fx:id="tabPanePrincipal"
+                 tabClosingPolicy="UNAVAILABLE"
+                 style="-fx-border-color: #BDC3C7; -fx-border-width: 0 2 0 0;">
+            <tabs>
+
+                <Tab fx:id="tabDatos" text="Datos de la red">
+                    <content>
+                        <VBox spacing="10.0">
+                            <padding>
+                                <Insets top="15.0" bottom="15.0" left="15.0" right="15.0" />
+                            </padding>
+                            <children>
+                                <Label text="Conexiones de la red de infraestructura"
+                                       textFill="#154D71">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Visualización de las conexiones (origen, destino, costo, tipo de ruta)"
+                                       textFill="#7F8C8D">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="10.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <TableView fx:id="tablaDatos"
+                                           VBox.vgrow="ALWAYS"
+                                           style="-fx-border-color: #BDC3C7; -fx-border-width: 1;" />
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <Tab fx:id="tabResultados" text="Resultados de Prim">
+                    <content>
+                        <VBox spacing="10.0">
+                            <padding>
+                                <Insets top="15.0" bottom="15.0" left="15.0" right="15.0" />
+                            </padding>
+                            <children>
+                                <Label text="Árbol de Expansión Mínima"
+                                       textFill="#154D71">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Red mínima que conecta todos los centros con el menor costo total."
+                                       textFill="#7F8C8D">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="8.0" />
+                                    </VBox.margin>
+                                </Label>
+
+                                <Pane fx:id="panelGrafoMST"
+                                      prefHeight="340.0"
+                                      VBox.vgrow="NEVER"
+                                      style="-fx-background-color: #154D71; -fx-background-radius: 10;">
+                                    <VBox.margin>
+                                        <Insets bottom="10.0" />
+                                    </VBox.margin>
+                                </Pane>
+
+                                <Label fx:id="labelCostoTotal"
+                                       text="Costo total mínimo de conexión: -"
+                                       textFill="#154D71">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" />
+                                    </VBox.margin>
+                                </Label>
+
+                                <TableView fx:id="tablaResultadosMST"
+                                           VBox.vgrow="ALWAYS"
+                                           style="-fx-border-color: #BDC3C7; -fx-border-width: 1;" />
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>

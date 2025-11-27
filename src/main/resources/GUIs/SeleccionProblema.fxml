@@ -144,6 +144,22 @@
                     </VBox>
 
                 </HBox>
+
+                <!-- BOTÓN DE SALIR CENTRADO ABAJO -->
+                <HBox alignment="CENTER">
+                    <children>
+                        <Button fx:id="botonSalirSeleccion"
+                                onAction="#alDarSalir"
+                                prefHeight="45.0" prefWidth="260.0"
+                                text="Regresar al menú principal"
+                                style="-fx-background-color: transparent; -fx-text-fill: #FFF9AF; -fx-border-color: #FFF9AF; -fx-border-width: 2; -fx-background-radius: 12; -fx-border-radius: 12;">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                        </Button>
+                    </children>
+                </HBox>
+
             </children>
         </VBox>
     </children>
