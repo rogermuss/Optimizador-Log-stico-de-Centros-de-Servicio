@@ -57,7 +57,7 @@
                 <Label text="Verificación Rápida de Stock/Cliente" textFill="WHITE" />
 
                 <TextField fx:id="textFieldConsulta"
-                           style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #1C6EA4; -fx-border-width: 1;" />
+                           style="-fx-background-color: #ffffff; -fx-text-fill: white; -fx-border-color: #1C6EA4; -fx-border-width: 1;" />
 
                 <Button fx:id="botonAplicarConsulta" disable="true"
                         style="-fx-background-color: #33A1E0; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;"
@@ -79,7 +79,7 @@
                 <ComboBox fx:id="selectorRecorrido"
                           maxWidth="1.7976931348623157E308"
                           promptText="Seleccione un recorrido"
-                          style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #1C6EA4; -fx-border-width: 2;" />
+                          style="-fx-background-color: #ffffff; -fx-text-fill: white; -fx-border-color: #1C6EA4; -fx-border-width: 2;" />
 
                 <ScrollPane fx:id="panelScrollAlgoritmos"
                             fitToWidth="true"

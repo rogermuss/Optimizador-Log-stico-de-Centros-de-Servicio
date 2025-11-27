@@ -70,7 +70,7 @@
 
                 <ComboBox fx:id="selectorAlgoritmo" maxWidth="1.7976931348623157E308"
                           promptText="Seleccione un algoritmo"
-                          style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #33A1E0; -fx-border-width: 2;">
+                          style="-fx-background-color: #ffffff; -fx-text-fill: white; -fx-border-color: #33A1E0; -fx-border-width: 2;">
                     <VBox.margin>
                         <Insets bottom="15.0" />
                     </VBox.margin>
@@ -87,7 +87,7 @@
 
                         <ComboBox fx:id="selectorOrigen" maxWidth="1.7976931348623157E308"
                                   promptText="Seleccione origen"
-                                  style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #27AE60; -fx-border-width: 2;">
+                                  style="-fx-background-color: #fafafa; -fx-text-fill: white; -fx-border-color: #27AE60; -fx-border-width: 2;">
                             <VBox.margin>
                                 <Insets bottom="10.0" />
                             </VBox.margin>
@@ -101,7 +101,7 @@
 
                         <ComboBox fx:id="selectorDestino" maxWidth="1.7976931348623157E308"
                                   promptText="Seleccione destino (opcional)"
-                                  style="-fx-background-color: #10263A; -fx-text-fill: white; -fx-border-color: #E74C3C; -fx-border-width: 2;">
+                                  style="-fx-background-color: #fbfbfb; -fx-text-fill: white; -fx-border-color: #E74C3C; -fx-border-width: 2;">
                         </ComboBox>
                     </children>
                     <VBox.margin>
@@ -161,13 +161,13 @@
                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                             </padding>
                             <children>
-                                <Label text="Conexiones de la red logística" textFill="#154D71">
+                                <Label text="Conexiones de la red logística" textFill="#32aeff">
                                     <font>
                                         <Font name="System Bold" size="16.0" />
                                     </font>
                                 </Label>
                                 <Label text="Visualización de las rutas entre Centros de Distribución con sus tiempos/costos"
-                                       textFill="#7F8C8D">
+                                       textFill="#dadb82">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
@@ -189,13 +189,13 @@
                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                             </padding>
                             <children>
-                                <Label text="Resultados de optimización" textFill="#154D71">
+                                <Label text="Resultados de optimización" textFill="#2dadfe">
                                     <font>
                                         <Font name="System Bold" size="16.0" />
                                     </font>
                                 </Label>
                                 <Label text="Rutas optimizadas y distancias mínimas calculadas por el algoritmo"
-                                       textFill="#7F8C8D">
+                                       textFill="#e7feff">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
