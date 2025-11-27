@@ -11,7 +11,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -70,6 +73,8 @@ public class RedLogisticaController implements Initializable {
         botonCargar.setOnAction(e -> abrirExplorador());
 
         botonEjecutarAlgoritmo.setOnAction(e -> ejecutarAlgoritmo());
+
+        botonReturn.setOnAction(e -> regresarAlMenu());
     }
 
     private void abrirExplorador() {
@@ -454,5 +459,26 @@ public class RedLogisticaController implements Initializable {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+
+    private void regresarAlMenu() {
+        FXMLLoader loader = new FXMLLoader(
+                GraphExplorerAPP.class.getResource("/GUIs/SeleccionProblema.fxml")
+        );
+        Parent raiz = null;
+        try {
+            raiz = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Stage venActual = (Stage) botonReturn.getScene().getWindow();
+        Stage venNuevo = new Stage();
+        venNuevo.setTitle("GraphExplorer | Selección de Problema");
+        venNuevo.setScene(new Scene(raiz, venActual.getWidth(), venActual.getHeight()));
+        venNuevo.setMaximized(venActual.isMaximized());
+        venNuevo.setFullScreen(venActual.isFullScreen());
+        venActual.close();
+        venNuevo.setFullScreenExitHint("");
+        venNuevo.show();
     }
 }

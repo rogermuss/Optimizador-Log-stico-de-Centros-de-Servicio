@@ -8,7 +8,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -51,7 +54,7 @@ public class InventarioController implements Initializable {
 
         botonAplicarConsulta.setOnAction(e -> buscarProducto());
         botonRecorrido.setOnAction(e -> mostrarRecorrido());
-
+        botonReturn.setOnAction(e -> regresarAlMenu());
         //Cargar opciones en el acordion
         selectorRecorrido.getItems().clear();
         selectorRecorrido.getItems().addAll(
@@ -262,4 +265,26 @@ public class InventarioController implements Initializable {
 
         tablaDatos.setItems(datosTabla);
     }
+
+    private void regresarAlMenu() {
+        FXMLLoader loader = new FXMLLoader(
+                GraphExplorerAPP.class.getResource("/GUIs/SeleccionProblema.fxml")
+        );
+        Parent raiz = null;
+        try {
+            raiz = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Stage venActual = (Stage) botonReturn.getScene().getWindow();
+        Stage venNuevo = new Stage();
+        venNuevo.setTitle("GraphExplorer | Selección de Problema");
+        venNuevo.setScene(new Scene(raiz, venActual.getWidth(), venActual.getHeight()));
+        venNuevo.setMaximized(venActual.isMaximized());
+        venNuevo.setFullScreen(venActual.isFullScreen());
+        venActual.close();
+        venNuevo.setFullScreenExitHint("");
+        venNuevo.show();
+    }
+
 }
