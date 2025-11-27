@@ -4,12 +4,20 @@ package EstructurasDeDatos;
 
 import java.util.Comparator;
 
-class ArbolAVL<T> {
+public class ArbolAVL<T> {
     private Node<T> root;
     private Comparator<T> comparator;
 
-    ArbolAVL(Comparator<T> comparator) {
+    public ArbolAVL(Comparator<T> comparator) {
         this.comparator = comparator;
+    }
+
+    public Node<T> getRoot() {
+        return root;
+    }
+
+    public void setRoot(Node<T> root) {
+        this.root = root;
     }
 
     public int altura(Node<T> N) {
@@ -88,108 +96,5 @@ class ArbolAVL<T> {
         }
 
         return nodo;
-    }
-
-    public Node<T> nodoConValorMinimo(Node<T> nodo) {
-        Node<T> actual = nodo;
-        while (actual.getLeft() != null)
-            actual = actual.getLeft();
-        return actual;
-    }
-
-    public Node<T> eliminarNodo(Node<T> raiz, T item) {
-
-        if (raiz == null)
-            return raiz;
-
-        if (comparator.compare(item, raiz.getItem()) < 0)
-            raiz.setLeft(eliminarNodo(raiz.getLeft(), item));
-        else if (comparator.compare(item, raiz.getItem()) > 0)
-            raiz.setRight(eliminarNodo(raiz.getRight(), item));
-        else {
-            if ((raiz.getLeft() == null) || (raiz.getRight() == null)) {
-                Node<T> temp;
-
-                if (raiz.getLeft() != null)
-                    temp = raiz.getLeft();
-                else
-                    temp = raiz.getRight();
-
-                if (temp == null) {
-                    raiz = null;
-                } else
-                    raiz = temp;
-            } else {
-                Node<T> temp = nodoConValorMinimo(raiz.getRight());
-                raiz.setItem(temp.getItem());
-                raiz.setRight(eliminarNodo(raiz.getRight(), temp.getItem()));
-            }
-        }
-
-        if (raiz == null)
-            return raiz;
-
-        raiz.setHeight(maximo(altura(raiz.getLeft()), altura(raiz.getRight())) + 1);
-        int factorBalance = obtenerFactorBalance(raiz);
-
-        if (factorBalance > 1) {
-            if (obtenerFactorBalance(raiz.getLeft()) >= 0) {
-                return rotarDerecha(raiz);
-            } else {
-                raiz.setLeft(rotarIzquierda(raiz.getLeft()));
-                return rotarDerecha(raiz);
-            }
-        }
-
-        if (factorBalance < -1) {
-            if (obtenerFactorBalance(raiz.getRight()) <= 0) {
-                return rotarIzquierda(raiz);
-            } else {
-                raiz.setRight(rotarDerecha(raiz.getRight()));
-                return rotarIzquierda(raiz);
-            }
-        }
-
-        return raiz;
-    }
-
-    public void preOrden(Node<T> nodo) {
-        if (nodo != null) {
-            System.out.print(nodo.getItem() + " ");
-            preOrden(nodo.getLeft());
-            preOrden(nodo.getRight());
-        }
-    }
-
-    public void inOrden(Node<T> nodo) {
-        if (nodo != null) {
-            inOrden(nodo.getLeft());
-            System.out.print(nodo.getItem() + " ");
-            inOrden(nodo.getRight());
-        }
-    }
-
-    public void postOrden(Node<T> nodo) {
-        if (nodo != null) {
-            postOrden(nodo.getLeft());
-            postOrden(nodo.getRight());
-            System.out.print(nodo.getItem() + " ");
-        }
-    }
-
-    public void imprimirArbol(Node<T> actual, String indentacion, boolean ultimo) {
-        if (actual != null) {
-            System.out.print(indentacion);
-            if (ultimo) {
-                System.out.print("R----");
-                indentacion += "   ";
-            } else {
-                System.out.print("L----");
-                indentacion += "|  ";
-            }
-            System.out.println(actual.getItem());
-            imprimirArbol(actual.getLeft(), indentacion, false);
-            imprimirArbol(actual.getRight(), indentacion, true);
-        }
     }
 }

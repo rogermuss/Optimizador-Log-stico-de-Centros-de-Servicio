@@ -1,4 +1,4 @@
-module org.example.optimizadorlogistico_de_centros_de_servicio {
+module GUIs {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
