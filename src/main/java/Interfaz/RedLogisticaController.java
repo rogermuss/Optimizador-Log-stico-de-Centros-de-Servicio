@@ -280,16 +280,13 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
-        // Mostrar panel siempre que se seleccione un algoritmo
         panelParametros.setVisible(true);
 
-        // Limpiar selección previa siempre que el algoritmo cambie
         selectorOrigen.getSelectionModel().clearSelection();
         selectorDestino.getSelectionModel().clearSelection();
         selectorOrigen.setValue(null);
         selectorDestino.setValue(null);
 
-        // Limpia el área de detalles
         areaDetalles.clear();
 
         if (algoritmoSeleccionado.contains("Dijkstra")) {
@@ -302,7 +299,6 @@ public class RedLogisticaController implements Initializable {
             labelOrigen.setText("Centro de Distribución Origen:");
             labelDestino.setText("Centro de Distribución Destino (Opcional):");
 
-            // *** NUEVO: texto cambia según iterativo/recursivo y avisa de la comparación
             StringBuilder desc = new StringBuilder();
             if (algoritmoSeleccionado.toLowerCase().contains("recursivo")) {
                 desc.append("ALGORITMO DE DIJKSTRA (VERSIÓN RECURSIVA)\n");
@@ -357,7 +353,6 @@ public class RedLogisticaController implements Initializable {
         }
     }
 
-    // *** NUEVO: ejecuta ambas versiones de Dijkstra y compara tiempos
     private void ejecutarDijkstra() {
         Integer origen = selectorOrigen.getValue();
 
@@ -381,12 +376,10 @@ public class RedLogisticaController implements Initializable {
 
         Dijkstra dijkstra = new Dijkstra();
 
-        // Medición tiempo iterativo
         long inicioIter = System.nanoTime();
         ResultadoDijkstra resultadoIter = dijkstra.calcular(grafoLista, origen);
         long finIter = System.nanoTime();
 
-        // Medición tiempo recursivo
         long inicioRec = System.nanoTime();
         ResultadoDijkstra resultadoRec = dijkstra.calcularRecursivo(grafoLista, origen);
         long finRec = System.nanoTime();
