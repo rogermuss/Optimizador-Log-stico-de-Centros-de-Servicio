@@ -58,11 +58,9 @@ public class RedLogisticaController implements Initializable {
         nombreAIndice = new HashMap<>();
         indiceANombre = new HashMap<>();
 
-        //        selectorAlgoritmo.setDisable(true);
-        //        botonEjecutarAlgoritmo.setDisable(true);
+
         panelParametros.setVisible(false);
 
-        // *** NUEVO: agregamos opción para Dijkstra recursivo
         selectorAlgoritmo.getItems().addAll(
                 "Dijkstra Iterativo - Ruta Más Corta (Un Origen)",
                 "Dijkstra Recursivo - Ruta Más Corta (Un Origen)",
@@ -93,7 +91,6 @@ public class RedLogisticaController implements Initializable {
         String algoritmoSeleccionado = selectorAlgoritmo.getValue();
         if (algoritmoSeleccionado != null && algoritmoSeleccionado.contains("Dijkstra")) {
             Integer origen = selectorOrigen.getValue();
-            // botonEjecutarAlgoritmo.setDisable(origen == null);
         }
     }
 
@@ -119,7 +116,6 @@ public class RedLogisticaController implements Initializable {
                     return;
                 }
 
-                // Validar que tenga al menos 3 columnas (Origen, Destino, Costo)
                 if (encabezadosOriginales.length < 3) {
                     mostrarAlerta("Error", "El CSV debe tener al menos 3 columnas: Origen, Destino, Costo");
                     return;
@@ -146,7 +142,6 @@ public class RedLogisticaController implements Initializable {
     private void construirGrafos() {
         Set<String> verticesUnicos = new HashSet<>();
 
-        // Recolectar todos los vértices únicos
         for (String[] fila : datosCompletos) {
             if (fila.length >= 3) {
                 String origen = fila[0].trim();
@@ -166,7 +161,6 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
-        // Crear mapeo de nombres a índices (ordenado para consistencia)
         int indice = 0;
         List<String> verticesOrdenados = new ArrayList<>(verticesUnicos);
         Collections.sort(verticesOrdenados);
@@ -180,11 +174,9 @@ public class RedLogisticaController implements Initializable {
             indice++;
         }
 
-        // Crear estructuras de grafos
         grafoLista = new GrafoLista(numeroVertices);
         grafoMatriz = new GrafoMatriz(numeroVertices);
 
-        // Agregar aristas
         int aristasAgregadas = 0;
         for (String[] fila : datosCompletos) {
             try {
@@ -202,7 +194,6 @@ public class RedLogisticaController implements Initializable {
                     continue;
                 }
 
-                // Parsear costo (puede ser decimal como 3.5)
                 double costoDouble = Double.parseDouble(costoStr);
                 int peso = (int) Math.round(costoDouble);
 
@@ -219,7 +210,6 @@ public class RedLogisticaController implements Initializable {
                     continue;
                 }
 
-                // Agregar arista (bidireccional para redes logísticas)
                 grafoLista.agregarArista(indiceOrigen, indiceDestino, peso);
                 grafoLista.agregarArista(indiceDestino, indiceOrigen, peso); // Bidireccional
 
@@ -241,7 +231,6 @@ public class RedLogisticaController implements Initializable {
         System.out.println("  Vértices: " + numeroVertices);
         System.out.println("  Aristas agregadas: " + aristasAgregadas);
 
-        // Configurar selectores
         selectorOrigen.getItems().clear();
         selectorDestino.getItems().clear();
 
@@ -250,7 +239,6 @@ public class RedLogisticaController implements Initializable {
             selectorDestino.getItems().add(i);
         }
 
-        // Configurar convertidores para mostrar nombres
         selectorOrigen.setConverter(new javafx.util.StringConverter<Integer>() {
             @Override
             public String toString(Integer idx) {
@@ -280,16 +268,13 @@ public class RedLogisticaController implements Initializable {
             return;
         }
 
-        // Mostrar panel siempre que se seleccione un algoritmo
         panelParametros.setVisible(true);
 
-        // Limpiar selección previa siempre que el algoritmo cambie
         selectorOrigen.getSelectionModel().clearSelection();
         selectorDestino.getSelectionModel().clearSelection();
         selectorOrigen.setValue(null);
         selectorDestino.setValue(null);
 
-        // Limpia el área de detalles
         areaDetalles.clear();
 
         if (algoritmoSeleccionado.contains("Dijkstra")) {
@@ -302,7 +287,6 @@ public class RedLogisticaController implements Initializable {
             labelOrigen.setText("Centro de Distribución Origen:");
             labelDestino.setText("Centro de Distribución Destino (Opcional):");
 
-            // *** NUEVO: texto cambia según iterativo/recursivo y avisa de la comparación
             StringBuilder desc = new StringBuilder();
             if (algoritmoSeleccionado.toLowerCase().contains("recursivo")) {
                 desc.append("ALGORITMO DE DIJKSTRA (VERSIÓN RECURSIVA)\n");
@@ -357,7 +341,6 @@ public class RedLogisticaController implements Initializable {
         }
     }
 
-    // *** NUEVO: ejecuta ambas versiones de Dijkstra y compara tiempos
     private void ejecutarDijkstra() {
         Integer origen = selectorOrigen.getValue();
 
@@ -381,12 +364,10 @@ public class RedLogisticaController implements Initializable {
 
         Dijkstra dijkstra = new Dijkstra();
 
-        // Medición tiempo iterativo
         long inicioIter = System.nanoTime();
         ResultadoDijkstra resultadoIter = dijkstra.calcular(grafoLista, origen);
         long finIter = System.nanoTime();
 
-        // Medición tiempo recursivo
         long inicioRec = System.nanoTime();
         ResultadoDijkstra resultadoRec = dijkstra.calcularRecursivo(grafoLista, origen);
         long finRec = System.nanoTime();

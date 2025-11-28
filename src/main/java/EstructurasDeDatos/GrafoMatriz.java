@@ -10,8 +10,8 @@ public class GrafoMatriz {
         this.vertices = vertices;
         matriz = new int[vertices][vertices];
         for (int i = 0; i < vertices; i++) {
-            Arrays.fill(matriz[i], Integer.MAX_VALUE); //Se llena con un valor infinito
-            matriz[i][i] = 0; //Entre si mismo vale 0
+            Arrays.fill(matriz[i], Integer.MAX_VALUE);
+            matriz[i][i] = 0;
         }
     }
 

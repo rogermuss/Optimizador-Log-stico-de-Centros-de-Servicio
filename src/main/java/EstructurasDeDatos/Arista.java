@@ -1,6 +1,5 @@
 package EstructurasDeDatos;
 
-// Representa una arista ponderada entre dos nodos (origen, destino) con cierto costo/peso.
 public class Arista {
 
     private final int origen;

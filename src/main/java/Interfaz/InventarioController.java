@@ -49,13 +49,11 @@ public class InventarioController implements Initializable {
         botonAplicarConsulta.setDisable(true);
         botonRecorrido.setDisable(true);
 
-        //cargar csv
         botonCargar.setOnAction(e -> abrirExplorador());
 
         botonAplicarConsulta.setOnAction(e -> buscarProducto());
         botonRecorrido.setOnAction(e -> mostrarRecorrido());
         botonReturn.setOnAction(e -> regresarAlMenu());
-        //Cargar opciones en el acordion
         selectorRecorrido.getItems().clear();
         selectorRecorrido.getItems().addAll(
                 "InOrden (Ascendente)",
@@ -87,11 +85,9 @@ public class InventarioController implements Initializable {
                     return;
                 }
 
-                //Cargo la informacion en la interfaz y los productos en el arbol AVL
                 rellenarTabView();
                 cargarProductosEnArbol();
 
-                //Reactivo lsd opciones de la interfaz
                 selectorRecorrido.setDisable(false);
                 botonAplicarConsulta.setDisable(false);
                 botonRecorrido.setDisable(false);
@@ -103,7 +99,6 @@ public class InventarioController implements Initializable {
     }
 
     private void cargarProductosEnArbol() {
-        //Creo un arbol con el comparador de Strings del identificador del producto
 
         arbolInventario = new ArbolAVL<>((p1, p2) ->
                 p1.getId().compareTo(p2.getId())

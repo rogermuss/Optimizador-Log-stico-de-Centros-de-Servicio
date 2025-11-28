@@ -1,6 +1,5 @@
 package EstructurasDeDatos;
-//Referencia de algoritmo
-//Árbol AVL. (n.d.). https://www.programiz.com/dsa/avl-tree
+
 
 import java.util.Comparator;
 

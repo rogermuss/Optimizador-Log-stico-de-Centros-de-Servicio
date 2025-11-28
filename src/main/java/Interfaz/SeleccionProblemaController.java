@@ -138,7 +138,7 @@ public class SeleccionProblemaController {
     }
 
     @FXML
-    private void alDarSalir(javafx.event.ActionEvent e) {
+    private void alDarSalir(ActionEvent e) {
         try {
             FXMLLoader loader = new FXMLLoader(
                     GraphExplorerAPP.class.getResource("/GUIs/MenuPrincipal.fxml")

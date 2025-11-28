@@ -1,8 +1,7 @@
 package EstructurasDeDatos;
 import java.util.Comparator;
 
-//Nodo con compatarator referencia:
-//https://www.geeksforgeeks.org/java/dijkstras-shortest-path-algorithm-in-java-using-priorityqueue/
+
 public class NodeComparator implements Comparator<NodeComparator> {
     public int node;
     public int cost;
